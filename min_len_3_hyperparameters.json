@@ -13,5 +13,5 @@
     "negative_penalty": 1,
     "out_channels": 320,
     "reduced_size": 160,
-    "min_len": 1
+    "min_len": 3
 }

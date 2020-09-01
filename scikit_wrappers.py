@@ -89,6 +89,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
         )
         self.classifier = SVC()
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
+        self.min_len = min_len
 
     def save_encoder(self, prefix_file):
         """
@@ -474,7 +475,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
                  negative_penalty=1, batch_size=1, nb_steps=2000, lr=0.001,
                  penalty=1, early_stopping=None, channels=10, depth=1,
                  reduced_size=10, out_channels=10, kernel_size=4,
-                 in_channels=1, cuda=False, gpu=0):
+                 in_channels=1, cuda=False, gpu=0, min_len=1):
         super(CausalCNNEncoderClassifier, self).__init__(
             compared_length, nb_random_samples, negative_penalty, batch_size,
             nb_steps, lr, penalty, early_stopping,
@@ -482,7 +483,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
                                   out_channels, kernel_size, cuda, gpu),
             self.__encoder_params(in_channels, channels, depth, reduced_size,
                                   out_channels, kernel_size),
-            in_channels, out_channels, cuda, gpu
+            in_channels, out_channels, cuda, gpu, min_len=min_len
         )
         self.architecture = 'CausalCNN'
         self.channels = channels
@@ -623,17 +624,18 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
             'in_channels': self.in_channels,
             'out_channels': self.out_channels,
             'cuda': self.cuda,
-            'gpu': self.gpu
+            'gpu': self.gpu,
+            "min_len": self.min_len
         }
 
     def set_params(self, compared_length, nb_random_samples, negative_penalty,
                    batch_size, nb_steps, lr, penalty, early_stopping,
                    channels, depth, reduced_size, out_channels, kernel_size,
-                   in_channels, cuda, gpu):
+                   in_channels, cuda, gpu, min_len):
         self.__init__(
             compared_length, nb_random_samples, negative_penalty, batch_size,
             nb_steps, lr, penalty, early_stopping, channels, depth,
-            reduced_size, out_channels, kernel_size, in_channels, cuda, gpu
+            reduced_size, out_channels, kernel_size, in_channels, cuda, gpu, min_len=min_len
         )
         return self
 
