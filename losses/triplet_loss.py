@@ -48,13 +48,14 @@ class TripletLoss(torch.nn.modules.loss._Loss):
     @param negative_penalty Multiplicative coefficient for the negative sample
            loss.
     """
-    def __init__(self, compared_length, nb_random_samples, negative_penalty):
+    def __init__(self, compared_length, nb_random_samples, negative_penalty, min_len):
         super(TripletLoss, self).__init__()
         self.compared_length = compared_length
         if self.compared_length is None:
             self.compared_length = numpy.inf
         self.nb_random_samples = nb_random_samples
         self.negative_penalty = negative_penalty
+        self.min_len = min_len
 
     def forward(self, batch, encoder, train, save_memory=False):
         batch_size = batch.size(0)
@@ -70,7 +71,7 @@ class TripletLoss(torch.nn.modules.loss._Loss):
         samples = torch.LongTensor(samples)
 
         # Choice of length of positive and negative samples
-        length_pos_neg = numpy.random.randint(1, high=length + 1)
+        length_pos_neg = numpy.random.randint(self.min_len, high=length + 1)
 
         # We choose for each batch example a random interval in the time
         # series, which is the 'anchor'
