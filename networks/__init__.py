@@ -17,6 +17,8 @@
 
 
 import pkgutil
+from . import causal_cnn
+from . import lstm
 
 __all__ = []
 for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
