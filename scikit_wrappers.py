@@ -19,14 +19,15 @@
 import math
 import numpy
 import torch
+from torch.utils.data import DataLoader
 import sklearn
-import sklearn.svm
-import sklearn.externals
+from sklearn.svm import SVC
+import joblib
 import sklearn.model_selection
 
-import utils
-import losses
-import networks
+from submodules.forked_nips2019 import utils
+from submodules.forked_nips2019 import losses
+from submodules.forked_nips2019 import networks
 
 
 class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
@@ -67,7 +68,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
     def __init__(self, compared_length, nb_random_samples, negative_penalty,
                  batch_size, nb_steps, lr, penalty, early_stopping,
                  encoder, params, in_channels, out_channels, cuda=False,
-                 gpu=0):
+                 gpu=0, min_len=1):
         self.architecture = ''
         self.cuda = cuda
         self.gpu = gpu
@@ -81,12 +82,12 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.loss = losses.triplet_loss.TripletLoss(
-            compared_length, nb_random_samples, negative_penalty
+            compared_length, nb_random_samples, negative_penalty, min_len
         )
         self.loss_varying = losses.triplet_loss.TripletLossVaryingLength(
             compared_length, nb_random_samples, negative_penalty
         )
-        self.classifier = sklearn.svm.SVC()
+        self.classifier = SVC()
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
 
     def save_encoder(self, prefix_file):
@@ -110,7 +111,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
                '$(prefix_file)_$(architecture)_encoder.pth').
         """
         self.save_encoder(prefix_file)
-        sklearn.externals.joblib.dump(
+        joblib.dump(
             self.classifier,
             prefix_file + '_' + self.architecture + '_classifier.pkl'
         )
@@ -142,7 +143,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
                and '$(prefix_file)_$(architecture)_encoder.pth').
         """
         self.load_encoder(prefix_file)
-        self.classifier = sklearn.externals.joblib.load(
+        self.classifier = joblib.load(
             prefix_file + '_' + self.architecture + '_classifier.pkl'
         )
 
@@ -163,7 +164,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
         #     n_neighbors=1
         # )
         # return self.classifier.fit(features, y)
-        self.classifier = sklearn.svm.SVC(
+        self.classifier = SVC(
             C=1 / self.penalty
             if self.penalty is not None and self.penalty > 0
             else numpy.inf,
@@ -234,7 +235,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
             ratio = train_size // nb_classes
 
         train_torch_dataset = utils.Dataset(X)
-        train_generator = torch.utils.data.DataLoader(
+        train_generator = DataLoader(
             train_torch_dataset, batch_size=self.batch_size, shuffle=True
         )
 
@@ -336,7 +337,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
         varying = bool(numpy.isnan(numpy.sum(X)))
 
         test = utils.Dataset(X)
-        test_generator = torch.utils.data.DataLoader(
+        test_generator = DataLoader(
             test, batch_size=batch_size if not varying else 1
         )
         features = numpy.zeros((numpy.shape(X)[0], self.out_channels))
@@ -531,7 +532,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
         varying = bool(numpy.isnan(numpy.sum(X)))
 
         test = utils.Dataset(X)
-        test_generator = torch.utils.data.DataLoader(
+        test_generator = DataLoader(
             test, batch_size=batch_size if not varying else 1
         )
         length = numpy.shape(X)[2]

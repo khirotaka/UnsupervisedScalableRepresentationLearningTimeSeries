@@ -25,7 +25,7 @@ import argparse
 import weka.core.jvm
 import weka.core.converters
 
-import scikit_wrappers
+from submodules.forked_nips2019 import scikit_wrappers
 
 
 def load_UEA_dataset(path, dataset):

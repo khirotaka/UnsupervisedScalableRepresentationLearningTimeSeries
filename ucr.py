@@ -24,7 +24,7 @@ import numpy
 import pandas
 import argparse
 
-import scikit_wrappers
+from submodules.forked_nips2019 import scikit_wrappers
 
 
 def load_UCR_dataset(path, dataset):

@@ -23,8 +23,8 @@ import torch
 import sklearn
 import argparse
 
-import uea
-import scikit_wrappers
+from submodules.forked_nips2019 import uea
+from submodules.forked_nips2019 import scikit_wrappers
 
 
 def load_classifier(save_path, dataset, cuda, gpu):
