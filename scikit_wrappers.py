@@ -631,7 +631,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
     def set_params(self, compared_length, nb_random_samples, negative_penalty,
                    batch_size, nb_steps, lr, penalty, early_stopping,
                    channels, depth, reduced_size, out_channels, kernel_size,
-                   in_channels, cuda, gpu, min_len):
+                   in_channels, cuda, gpu, min_len=1):
         self.__init__(
             compared_length, nb_random_samples, negative_penalty, batch_size,
             nb_steps, lr, penalty, early_stopping, channels, depth,
