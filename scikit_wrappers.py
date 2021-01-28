@@ -288,7 +288,7 @@ class TimeSeriesEncoderClassifier(sklearn.base.BaseEstimator,
                     found_best = True
                     max_score = score
                     best_encoder = type(self.encoder)(**self.params)
-                    best_encoder.double()
+
                     if self.cuda:
                         best_encoder.cuda(self.gpu)
                     best_encoder.load_state_dict(self.encoder.state_dict())
@@ -497,7 +497,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
             in_channels, channels, depth, reduced_size, out_channels,
             kernel_size
         )
-        encoder.double()
+
         if cuda:
             encoder.cuda(gpu)
         return encoder
@@ -554,7 +554,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
                     # First applies the causal CNN
                     output_causal_cnn = causal_cnn(batch)
                     after_pool = torch.empty(
-                        output_causal_cnn.size(), dtype=torch.double
+                        output_causal_cnn.size(), dtype=torch.float
                     )
                     if self.cuda:
                         after_pool = after_pool.cuda(self.gpu)
@@ -584,7 +584,7 @@ class CausalCNNEncoderClassifier(TimeSeriesEncoderClassifier):
                     ).data.cpu().numpy()
                     output_causal_cnn = causal_cnn(batch)
                     after_pool = torch.empty(
-                        output_causal_cnn.size(), dtype=torch.double
+                        output_causal_cnn.size(), dtype=torch.float
                     )
                     if self.cuda:
                         after_pool = after_pool.cuda(self.gpu)
@@ -683,7 +683,7 @@ class LSTMEncoderClassifier(TimeSeriesEncoderClassifier):
 
     def __create_encoder(self, cuda, gpu):
         encoder = networks.lstm.LSTMEncoder()
-        encoder.double()
+
         if cuda:
             encoder.cuda(gpu)
         return encoder
